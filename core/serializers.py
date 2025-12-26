@@ -43,3 +43,23 @@ class BookingSerializer(serializers.ModelSerializer):
             'ngay_gui',
         ]
         read_only_fields = ['trang_thai', 'ngay_gui']
+
+
+class CarePartnerRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarePartner
+        exclude = ['trang_thai', 'ngay_gui', 'user']
+
+class CarePartnerPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarePartner
+        fields = [
+            "id",
+            "ho_ten",
+            "gioi_tinh",
+            "nam_sinh",
+            "ky_nang",
+            "kinh_nghiem",
+            "gia_theo_gio",
+            "khu_vuc",
+        ]
