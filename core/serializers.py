@@ -31,4 +31,15 @@ class CarePartnerDetailSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
-        fields = '__all__'
+        fields = [
+            'id',
+            'ten_phu_huynh',
+            'so_dien_thoai',
+            'nguoi_ho_tro',
+            'thoi_gian_bat_dau',
+            'thoi_gian_ket_thuc',
+            'ghi_chu',
+            'trang_thai',
+            'ngay_gui',
+        ]
+        read_only_fields = ['trang_thai', 'ngay_gui']
