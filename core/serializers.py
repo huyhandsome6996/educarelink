@@ -1,65 +1,74 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import CarePartner, Booking
 
 
+# ========== USER REGISTER ==========
+class UserRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email']
+
+    def create(self, validated_data):
+        return User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            email=validated_data.get('email', '')
+        )
+
+
+# ========== CARE PARTNER ==========
 class CarePartnerListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarePartner
         fields = [
-            'id',
-            'ho_ten',
-            'gioi_tinh',
-            'nam_sinh',
-            'ky_nang',
-            'kinh_nghiem',
-            'gia_theo_gio',
-            'khu_vuc',
-            'dang_hoat_dong',
+            'id', 'ho_ten', 'gioi_tinh', 'nam_sinh',
+            'ky_nang', 'kinh_nghiem', 'gia_theo_gio',
+            'khu_vuc'
         ]
 
 
 class CarePartnerDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarePartner
-        exclude = [
-            'so_cccd',
-            'anh_cccd_mat_truoc',
-            'anh_cccd_mat_sau',
-        ]
-
-
-class BookingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Booking
-        fields = [
-            'id',
-            'ten_phu_huynh',
-            'so_dien_thoai',
-            'nguoi_ho_tro',
-            'thoi_gian_bat_dau',
-            'thoi_gian_ket_thuc',
-            'ghi_chu',
-            'trang_thai',
-            'ngay_gui',
-        ]
-        read_only_fields = ['trang_thai', 'ngay_gui']
+        exclude = ['so_cccd', 'anh_cccd_mat_truoc', 'anh_cccd_mat_sau']
 
 
 class CarePartnerRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarePartner
-        exclude = ['trang_thai', 'ngay_gui', 'user']
+        exclude = ['user', 'trang_thai', 'ngay_gui']
 
-class CarePartnerPublicSerializer(serializers.ModelSerializer):
+
+# ========== BOOKING ==========
+class BookingCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CarePartner
+        model = Booking
+        fields = [
+            'nguoi_ho_tro',
+            'thoi_gian_bat_dau',
+            'thoi_gian_ket_thuc',
+            'ghi_chu'
+        ]
+
+
+
+
+# Serializer dùng cho CarePartner xem booking
+# Không cho sửa, chỉ xem
+class BookingListSerializer(serializers.ModelSerializer):
+    nguoi_dat = serializers.CharField(source="nguoi_dat.username", read_only=True)
+
+    class Meta:
+        model = Booking
         fields = [
             "id",
-            "ho_ten",
-            "gioi_tinh",
-            "nam_sinh",
-            "ky_nang",
-            "kinh_nghiem",
-            "gia_theo_gio",
-            "khu_vuc",
+            "nguoi_dat",
+            "thoi_gian_bat_dau",
+            "thoi_gian_ket_thuc",
+            "ghi_chu",
+            "trang_thai",
+            "ngay_gui",
         ]

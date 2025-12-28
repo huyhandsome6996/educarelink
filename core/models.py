@@ -45,18 +45,39 @@ class CarePartner(models.Model):
 
 
 class Booking(models.Model):
-    ten_phu_huynh = models.CharField(max_length=100)
-    so_dien_thoai = models.CharField(max_length=20)
+    TRANG_THAI_CHOICES = [
+        ("cho_xac_nhan", "Chờ xác nhận"),
+        ("da_nhan", "Đã nhận"),
+        ("tu_choi", "Từ chối"),
+        ("hoan_thanh", "Hoàn thành"),
+        ("huy", "Hủy"),
+    ]
 
-    nguoi_ho_tro = models.ForeignKey(CarePartner, on_delete=models.CASCADE)
+    nguoi_dat = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="bookings"
+    )
+
+    nguoi_ho_tro = models.ForeignKey(
+        CarePartner,
+        on_delete=models.CASCADE,
+        related_name="bookings"
+    )
 
     thoi_gian_bat_dau = models.DateTimeField()
     thoi_gian_ket_thuc = models.DateTimeField()
 
     ghi_chu = models.TextField(blank=True)
-    trang_thai = models.CharField(max_length=20, default="cho_xac_nhan")
+
+    trang_thai = models.CharField(
+        max_length=20,
+        choices=TRANG_THAI_CHOICES,
+        default="cho_xac_nhan"
+    )
 
     ngay_gui = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.ten_phu_huynh
+        return f"Booking #{self.id} - {self.nguoi_dat.username}"
+
