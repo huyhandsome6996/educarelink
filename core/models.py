@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class CarePartner(models.Model):
@@ -8,47 +9,75 @@ class CarePartner(models.Model):
         ("tu_choi", "Từ chối"),
     ]
 
-    ho_ten = models.CharField(max_length=100, verbose_name="Họ và tên")
-    gioi_tinh = models.CharField(max_length=10, verbose_name="Giới tính")
-    nam_sinh = models.IntegerField(verbose_name="Năm sinh")
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="care_partner"
+    )
 
-    so_cccd = models.CharField(max_length=20, verbose_name="Số CCCD")
-    anh_cccd_mat_truoc = models.ImageField(upload_to="cccd/", verbose_name="CCCD mặt trước")
-    anh_cccd_mat_sau = models.ImageField(upload_to="cccd/", verbose_name="CCCD mặt sau")
-    anh_bang_cap = models.ImageField(upload_to="bang_cap/", verbose_name="Ảnh bằng cấp")
+    ho_ten = models.CharField(max_length=100)
+    gioi_tinh = models.CharField(max_length=10)
+    nam_sinh = models.IntegerField()
 
-    ky_nang = models.TextField(verbose_name="Kỹ năng")
-    kinh_nghiem = models.TextField(verbose_name="Kinh nghiệm")
+    so_cccd = models.CharField(max_length=20)
+    anh_cccd_mat_truoc = models.ImageField(upload_to="cccd/", null=True, blank=True) 
+    anh_cccd_mat_sau = models.ImageField(upload_to="cccd/", null=True, blank=True)
+    anh_bang_cap = models.ImageField(upload_to="bang_cap/", null=True, blank=True)
 
-    gia_theo_gio = models.IntegerField(verbose_name="Giá theo giờ")
-    khu_vuc = models.CharField(max_length=255, verbose_name="Khu vực")
+    ky_nang = models.TextField()
+    kinh_nghiem = models.TextField()
 
-    dang_hoat_dong = models.BooleanField(default=True)
+    gia_theo_gio = models.IntegerField()
+    khu_vuc = models.CharField(max_length=255)
+
     trang_thai = models.CharField(
         max_length=20,
         choices=TRANG_THAI_CHOICES,
         default="cho_duyet"
     )
 
-    ngay_tao = models.DateTimeField(auto_now_add=True)
+    ngay_gui = models.DateTimeField(auto_now_add=True)
+    dang_hoat_dong = models.BooleanField(default=True)
 
     def __str__(self):
         return self.ho_ten
 
 
-class Booking(models.Model):
-    ten_phu_huynh = models.CharField(max_length=100)
-    so_dien_thoai = models.CharField(max_length=20)
 
-    nguoi_ho_tro = models.ForeignKey(CarePartner, on_delete=models.CASCADE)
+class Booking(models.Model):
+    TRANG_THAI_CHOICES = [
+        ("cho_xac_nhan", "Chờ xác nhận"),
+        ("da_nhan", "Đã nhận"),
+        ("tu_choi", "Từ chối"),
+        ("hoan_thanh", "Hoàn thành"),
+        ("huy", "Hủy"),
+    ]
+
+    nguoi_dat = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="bookings"
+    )
+
+    nguoi_ho_tro = models.ForeignKey(
+        CarePartner,
+        on_delete=models.CASCADE,
+        related_name="bookings"
+    )
 
     thoi_gian_bat_dau = models.DateTimeField()
     thoi_gian_ket_thuc = models.DateTimeField()
 
     ghi_chu = models.TextField(blank=True)
-    trang_thai = models.CharField(max_length=20, default="cho_xac_nhan")
+
+    trang_thai = models.CharField(
+        max_length=20,
+        choices=TRANG_THAI_CHOICES,
+        default="cho_xac_nhan"
+    )
 
     ngay_gui = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.ten_phu_huynh
+        return f"Booking #{self.id} - {self.nguoi_dat.username}"
+
